@@ -15,7 +15,7 @@
                       (first (filter util/command-exists? paths))))))
 
 (def keytool-keys #{:rfc :noprompt :keystore :ext :keypass :dname :file :storepass
-                    :alias :trustcacerts :keyalg :keysize :validity})
+                    :alias :trustcacerts :keyalg :keysize :validity :sigalg :groupname})
 
 (defn process-args [args]
   (keep (fn [x] (if (keytool-keys x)

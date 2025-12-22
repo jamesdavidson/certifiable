@@ -48,8 +48,6 @@
 
 (defn gen-key-pair [args-map]
   (let [base-args (merge {:validity 10000
-                          :keyalg :RSA
-                          :keysize 2048
                           :keypass *password*
                           :storepass *password*}
                          args-map)]
@@ -77,11 +75,15 @@
       (log/info "Generating root and ca keypairs")
       ;; keytool -genkeypair -alias root -dname "cn=Local Network - Development" -validity 10000 -keyalg RSA -keysize 2048 -ext bc:c -keystore root.jks -keypass password -storepass password
       (gen-key-pair {:alias :root
+                          :keyalg :RSA
+                          :keysize 2048
                      :dname (dname opts)
                      :ext "bc:c"
                      :keystore root-keystore-path})
       ;; keytool -genkeypair -alias ca -dname "cn=Local Network - Development" -validity 10000 -keyalg RSA -keysize 2048 -ext bc:c -keystore ca.jks -keypass password -storepass password
       (gen-key-pair {:alias :ca
+                          :keyalg :RSA
+                          :keysize 2048
                      :dname (dname opts)
                      :ext "bc:c"
                      :keypass *password*
@@ -163,6 +165,12 @@
       ;; keytool -genkeypair -alias server -dname cn=server -validity 10000 -keyalg RSA -keysize 2048 -keystore my-keystore.jks -keypass password -storepass password
       (log/info "Generate private keys for server")
       (gen-key-pair {:alias :server
+                          :keyalg :RSA
+                          :keysize 2048
+;; :validity 13
+;; :keyalg "EC"
+;; :groupname "secp256r1"
+;; :sigalg "SHA256withECDSA"
                      :dname "cn=CertifiableLeafCert" 
                      :keystore server-keystore-path})
       
