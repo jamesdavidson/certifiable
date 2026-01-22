@@ -49,7 +49,7 @@
 (defn gen-key-pair [args-map]
   (let [base-args (merge {:validity 10000
                           :keyalg :RSA
-                          :keysize 2048
+                          ;:keysize 2048
                           :keypass *password*
                           :storepass *password*}
                          args-map)]
@@ -162,18 +162,20 @@
       
       ;; keytool -genkeypair -alias server -dname cn=server -validity 10000 -keyalg RSA -keysize 2048 -keystore my-keystore.jks -keypass password -storepass password
       (log/info "Generate private keys for server")
-      (gen-key-pair {:alias :server
-                     :dname "cn=CertifiableLeafCert" 
-                     :keystore server-keystore-path})
+      (gen-key-pair (merge (select-keys opts [:keyalg :groupname :validity])
+                           {:alias :server
+                            :dname "cn=CertifiableLeafCert"
+                            :keystore server-keystore-path}))
       
       ;; generate a certificate for server signed by ca (root -> ca -> server)
       
       ;; keytool -keystore my-keystore.jks -storepass password -certreq -alias server \
       ;; | keytool -keystore ca.jks -storepass password -gencert -alias ca -ext ku:c=dig,keyEnc -ext "san=dns:localhost,ip:127.0.0.1" -ext eku=sa,ca -rfc > server.pem
       (log/info "Generate a certificate for server signed by ca")
-      (->> (keytool :certreq {:keystore server-keystore-path
-                              :storepass *password*
-                              :alias :server})
+      (->> (keytool :certreq (merge (select-keys opts [:sigalg])
+                                    {:keystore server-keystore-path
+                                     :storepass *password*
+                                     :alias :server}))
            :out
            (keytool :gencert
                     [:alias :ca
@@ -344,6 +346,14 @@
 (def cli-options
   [["-o" "--output FILE" "The path and filename of the jks output file"
     :id :keystore-path]
+   [nil "--keyalg NAME" "The algorithm for the key"
+    :id :keyalg]
+   [nil "--groupname NAME" "The named group for generating keys"
+    :id :groupname]
+   [nil "--sigalg NAME" "The signature algorithm for the certificate"
+    :id :sigalg]
+   [nil "--validity DAYS" "The number of days the certificate will be valid"
+    :id :validity]
    ["-h" "--help"]
    ["-v" nil "verbose - outputs more info about keytool calls"
     :id :verbosity

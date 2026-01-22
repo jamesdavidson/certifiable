@@ -211,6 +211,19 @@ and allow you to start from scratch.
 $ clj -Sdeps '{:deps {com.bhauman/certifiable {:mvn/version "0.0.7"}}}' -m certifiable.main reset
 ```
 
+### Elliptic Curve Cryptography
+
+If RSA is not suitable then you can override `keyalg` for the leaf certificate.
+
+```sh
+clojure -M --main certifiable.main \
+  --keyalg EC \
+  --groupname secp256r1 \
+  --sigalg SHA256withECDSA \
+  --validity 13 \
+  create 127.0.0.1
+```
+
 ### Help 
 
 Using the `help` command or `-h` option with display all possible CLI options.
